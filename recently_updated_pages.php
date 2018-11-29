@@ -2,48 +2,47 @@
 
     /*****
      *
-     * Plugin name:     Recently Updated Pages
-     * Description:     Purpose of this plugin is to display the list of pages (and optionally posts) on
-     *                  Wordpress blog those have been recently updated. It also lets you use WP's shortcodes to
-	 *					display last update date of the page or blog posts.
-     * Version:         1.0.4
-     * Author:          Ehsanul Haque
-     * Author URI:      http://ehsanIs.me/
-     *
-     */
+     * Plugin name:     Recently Updated Pages IILLC
+     * Description:     Display a list of pages (and optionally posts) on WordPress that have been recently updated. Optionally you can use shortcodes to display last update date of the page or blog posts. [rup_display_update_date]
+     * Version:         1.1.0
+     * Author:          Troy Whitney
+     * Original Author: Ehsanul Haque  
+     * Author URI:      http://www.imageinnovationsllc.com/
+     ******/
     
     // Registering the widget
-    function recently_updated_pages() {
-        register_widget('Recently_Updated_Pages');
+    function recently_updated_pages_IILLC() {
+        register_widget('Recently_Updated_Pages_IILLC');
     }
     
     // Class Recently Updated Pages is extending WP_Widget class
-    class Recently_Updated_Pages extends WP_Widget {
-        function Recently_Updated_Pages() {
+    class Recently_Updated_Pages_IILLC extends WP_Widget {
+        function Recently_Updated_Pages_IILLC() {
             $widgetSettings     = array (
-                                        'classname'     => 'Recently_Updated_Pages',
+                                        'classname'     => 'Recently_Updated_Pages_IILLC',
                                         'description'   => 'Purpose of this plugin is to display the list of pages on Wordpress blog those have been recently updated.'
                                         );
             
             $controlSettings    = array (
                                         'width'         => 300,
                                         'height'        => 400,
-                                        'id_base'       => 'recently_updated_pages'
+                                        'id_base'       => 'recently_updated_pages_iillc'
                                         );
                                         
-            $this->WP_Widget('recently_updated_pages', 'Recently Updated Pages', $widgetSettings, $controlSettings);
+            $this->WP_Widget( 'recently_updated_pages_iillc', 'Recently Updated Pages IILLC', $widgetSettings, $controlSettings );
         }
 
         // Displaying the widget on the blog
-        function widget($args, $instance) {
-            extract($args);
+        function widget( $args, $instance ) {
+            extract( $args );
 
-            $title              = apply_filters('widget_title', $instance['title']);
-            $totalPagesToShow   = (int) $instance['totalPagesToShow'];
-            $showListWithPosts  = (int) $instance['showListWithPosts'];
-	        $displayDate	    = (int) $instance['displayDate'];
-	        $dateFormat		    = apply_filters('dateFormat', $instance['dateFormat']);
-	        $scDateFormat	    = apply_filters('scDateFormat', $instance['scDateFormat']);
+            $title              = apply_filters( 'widget_title', $instance['title'] );
+            $totalPagesToShow   = ( int ) $instance['totalPagesToShow'];
+            $showListWithPosts  = ( int ) $instance['showListWithPosts'];
+	    $displayDate	= ( int ) $instance['displayDate'];
+	    $dateFormat		= apply_filters( 'dateFormat', $instance['dateFormat'] );
+	    $scDateFormat	= apply_filters( 'scDateFormat', $instance['scDateFormat'] );
+	    $excludedPagesPosts = $instance['pagePostList'];
 
             $defaults           = array (
                                         'title'             => 'Recently Updated Pages',
@@ -51,28 +50,29 @@
                                         'showListWithPosts' => 0,
                                         'displayDate'       => 1,
                                         'dateFormat'        => 'jS F\'y',
-                                        'scDateFormat'      => 'jS F\'y \a\t g:ia'
+                                        'scDateFormat'      => 'jS F\'y \a\t g:ia',
+					'pagePostList'	    => ''
                                         );
                                     
             echo $before_widget;
 
-            if ($title != "") {
+            if ( $title != "" ) {
                 echo $before_title . $title . $after_title;
             } else {
                 echo $before_title . $defaults['title'] . $after_title;
             }
 
-            if ($totalPagesToShow != 0) {
-                $pageList       = $this->getListOfPages($totalPagesToShow, $showListWithPosts);
+            if ( $totalPagesToShow != 0 ) {
+                $pageList       = $this->getListOfPages($totalPagesToShow, $showListWithPosts, $excludedPagesPosts);
             } else {
                 $pageList       = $this->getListOfPages($defaults['totalPagesToShow'], $defaults['showListWithPosts']);
             }
 
-            if (!empty($pageList)) {
+            if ( !empty( $pageList ) ) {
                 echo "<ul>";
-                    foreach ($pageList as $obj) {
+                    foreach ( $pageList as $obj ) {
                         echo "<li class='page_item page-item-{$obj->ID}'><a href='{$obj->uri}' title='{$obj->post_title}'>{$obj->post_title}</a>";
-			if ($displayDate == 1) {
+			if ( $displayDate == 1 ) {
                             echo " on " . date($dateFormat, strtotime($obj->post_modified));
                         }
                         echo "</li>";
@@ -83,54 +83,57 @@
         }        
 
         // Updating the settings
-        function update($new_instance, $old_instance) {
+        function update( $new_instance, $old_instance ) {
             $instance                       = $old_instance;
-            $instance['title']              = strip_tags($new_instance['title']);
-            $instance['totalPagesToShow']   = strip_tags($new_instance['totalPagesToShow']);
-            $instance['showListWithPosts']  = strip_tags($new_instance['showListWithPosts']);
-            $instance['displayDate']        = strip_tags($new_instance['displayDate']);
-            $instance['dateFormat']         = strip_tags($new_instance['dateFormat']);
-            $instance['scDateFormat']       = strip_tags($new_instance['scDateFormat']);
-            update_option('rup_date_format', $instance['scDateFormat']);
+            $instance['title']              = strip_tags( $new_instance['title'] );
+            $instance['totalPagesToShow']   = strip_tags( $new_instance['totalPagesToShow'] );
+            $instance['showListWithPosts']  = strip_tags( $new_instance['showListWithPosts'] );
+            $instance['displayDate']        = strip_tags( $new_instance['displayDate'] );
+            $instance['dateFormat']         = strip_tags( $new_instance['dateFormat'] );
+            $instance['scDateFormat']       = strip_tags( $new_instance['scDateFormat'] );
+            $instance['pagePostList']	    = strip_tags( $new_instance['pagePostList'] );
+
+            update_option( 'rup_date_format', $instance['scDateFormat'] );
             return $instance;
         }
 
         // WP Admin panel form to modify the setting
-        function form($instance) {
+        function form( $instance ) {
 
-            $defaults       = array ( 
-                                    'title'             => 'Recently Updated Pages', 
-                                    'totalPagesToShow'  => 3,
-                                    'showListWithPosts' => 0,
-                                    'displayDate'       => 1,
-                                    'dateFormat'        => 'jS F\'y',
-                                    'scDateFormat'      => 'jS F\'y \a\t g:ia'
-                                    );
+            $defaults = array ( 
+                               'title'             => 'Recently Updated Pages', 
+                               'totalPagesToShow'  => 3,
+                               'showListWithPosts' => 0,
+                               'displayDate'       => 1,
+                               'dateFormat'        => 'jS F\'y',
+                               'scDateFormat'      => 'jS F\'y \a\t g:ia',
+			       'pagePostList'	   => ''
+                               );
                                     
-            $instance       = wp_parse_args((array) $instance, $defaults);
+            $instance       = wp_parse_args( ( array ) $instance, $defaults );
 ?>
 		<p>
-			<label for="<?php echo $this->get_field_id('title'); ?>">Title:</label>
-			<input id="<?php echo $this->get_field_id('title'); ?>" name="<?php echo $this->get_field_name('title'); ?>" value="<?php echo $instance['title']; ?>" style="width:100%;" />
+			<label for="<?php echo $this->get_field_id( 'title' ); ?>">Title:</label>
+			<input id="<?php echo $this->get_field_id( 'title' ); ?>" name="<?php echo $this->get_field_name( 'title' ); ?>" value="<?php echo $instance['title']; ?>" style="width:100%;" />
 		</p>
 
 		<p>
-			<label for="<?php echo $this->get_field_id('totalPagesToShow'); ?>">Total Pages to Show:</label>
-			<input id="<?php echo $this->get_field_id('totalPagesToShow'); ?>" name="<?php echo $this->get_field_name('totalPagesToShow'); ?>" value="<?php echo $instance['totalPagesToShow']; ?>" size="5" />
+			<label for="<?php echo $this->get_field_id( 'totalPagesToShow' ); ?>">Total Pages to Show:</label>
+			<input id="<?php echo $this->get_field_id( 'totalPagesToShow' ); ?>" name="<?php echo $this->get_field_name( 'totalPagesToShow' ); ?>" value="<?php echo $instance['totalPagesToShow']; ?>" size="5" />
 		</p>
 
                 <p>
-                        <label for="<?php echo $this->get_field_id('dateFormat'); ?>">Date Format:</label>
-                        <input id="<?php echo $this->get_field_id('dateFormat'); ?>" name="<?php echo $this->get_field_name('dateFormat'); ?>" value="<?php echo ($instance['dateFormat'] != "") ? $instance['dateFormat'] : $defaults['dateFormat']; ?>" size="15" />
+                        <label for="<?php echo $this->get_field_id( 'dateFormat' ); ?>">Date Format:</label>
+                        <input id="<?php echo $this->get_field_id( 'dateFormat' ); ?>" name="<?php echo $this->get_field_name( 'dateFormat' ); ?>" value="<?php echo ( $instance['dateFormat'] != "" ) ? $instance['dateFormat'] : $defaults['dateFormat']; ?>" size="15" />
                 </p>
 
                 <p>
-                        <label for="<?php echo $this->get_field_id('displayDate'); ?>">Display Date:</label>
-                        <input id="<?php echo $this->get_field_id('displayDate'); ?>" name="<?php echo $this->get_field_name('displayDate'); ?>" value="1" type="checkbox"
+                        <label for="<?php echo $this->get_field_id( 'displayDate' ); ?>">Display Date:</label>
+                        <input id="<?php echo $this->get_field_id( 'displayDate' ); ?>" name="<?php echo $this->get_field_name( 'displayDate' ); ?>" value="1" type="checkbox"
 
 
-                   <?php
-                   if ($instance['displayDate'] == 1) {
+<?php
+                   if ( $instance['displayDate'] == 1 ) {
                        echo " Checked";
                    }
                    ?>
@@ -139,18 +142,24 @@
                 </p>
 
 		<p>
-			<label for="<?php echo $this->get_field_id('showListWithPosts'); ?>">Include blog Posts in the list:</label>
-			<input id="<?php echo $this->get_field_id('showListWithPosts'); ?>" name="<?php echo $this->get_field_name('showListWithPosts'); ?>" value="1" type="checkbox"
-                   <?php
-                   if ($instance['showListWithPosts'] == 1) {
+			<label for="<?php echo $this->get_field_id( 'showListWithPosts' ); ?>">Include blog Posts in the list:</label>
+			<input id="<?php echo $this->get_field_id( 'showListWithPosts' ); ?>" name="<?php echo $this->get_field_name( 'showListWithPosts' ); ?>" value="1" type="checkbox"
+<?php
+                   if ( $instance['showListWithPosts'] == 1 ) {
                        echo " Checked";
                    }
-                   ?>
+?>
                    />
 		</p>
                 <p>
-                        <label for="<?php echo $this->get_field_id('scDateFormat'); ?>">Date Format for Short Code:</label>
-                        <input id="<?php echo $this->get_field_id('scDateFormat'); ?>" name="<?php echo $this->get_field_name('scDateFormat'); ?>" value="<?php echo ($instance['scDateFormat'] != "") ? $instance['scDateFormat'] : $defaults['scDateFormat']; ?>" size="15" />
+                        <label for="<?php echo $this->get_field_id( 'scDateFormat' ); ?>">Date Format for Short Code:</label>
+                        <input id="<?php echo $this->get_field_id( 'scDateFormat' ); ?>" name="<?php echo $this->get_field_name( 'scDateFormat' ); ?>" value="<?php echo ( $instance['scDateFormat'] != "" ) ? $instance['scDateFormat'] : $defaults['scDateFormat']; ?>" size="15" />
+                </p>
+                <p>
+                        <label for="<?php echo $this->get_field_id( 'pagePostList' ); ?>">Excluded Pages and Posts Numbers:</label>
+                </p>
+                <p>
+                        <input id="<?php echo $this->get_field_id( 'pagePostList' ); ?>" name="<?php echo $this->get_field_name('pagePostList'); ?>" value="<?php echo ( $instance['pagePostList'] != "" ) ? $instance['pagePostList'] : $defaults['pagePostList']; ?>" size="50" />
                 </p>
                 <p>
 <hr/>
@@ -174,7 +183,7 @@ s - Seconds, with leading zeros (00 through 59)<br/>
 <b>How to Use Shortcodes</b>
 <hr/><small>
 In your PHP template file place the following code:<br/>
-<code>&lt;&#63;php<br/>echo do_shortcode('[rup_display_update_date]');<br/>&#63;&gt;</code><br/>
+<code>&lt;&#63;php<br/>echo do_shortcode( '[rup_display_update_date]' );<br/>&#63;&gt;</code><br/>
 To display the last update date within the content of your blog articles or pages use the shortcode like:<br/>
 <code>[rup_display_update_date]</code>
 </small>
@@ -183,40 +192,52 @@ To display the last update date within the content of your blog articles or page
         }
 
         // Getting the list of pages ( and posts) based on the option set by the user
-        function getListOfPages($totalPagesToShow, $showListWithPosts) {
-            GLOBAL $wpdb;
+        function getListOfPages( $totalPagesToShow, $showListWithPosts, $excludedPagesPosts ) {
+            global $wpdb;
 
-            if ($showListWithPosts == 1) {
-                $postTypeWhere      = "post_type IN ('page', 'post')";
+	    if ( preg_match( '/^ *[0-9]+ *(, *[0-9]+ *)*$/', $excludedPagesPosts ) ){
+		$exclude = 'ID Not In ( '.$excludedPagesPosts.' ) And';
+	    } else {
+		$exclude = '';
+	    }
+
+            if ( $showListWithPosts == 1 ) {
+                $postTypeWhere = "post_type IN ( 'page', 'post' )";
             } else {
-                $postTypeWhere      = "post_type = 'page'";
+                $postTypeWhere = "post_type = 'page'";
             }
-            $sql            = "SELECT ID, post_title, post_modified FROM
-                                {$wpdb->posts} WHERE
-                                post_status = 'publish' AND
-                                {$postTypeWhere}
-                                ORDER BY post_modified DESC
-                                LIMIT {$totalPagesToShow}";
+            $sql = "
+	    	SELECT 
+		     ID, 
+		     post_title, 
+		     post_modified 
+		FROM
+                     {$wpdb->posts} 
+		WHERE
+                     $exclude
+		     post_status = 'publish' AND
+                     {$postTypeWhere} 
+                ORDER BY post_modified DESC
+                LIMIT {$totalPagesToShow}";
 
-            $list           = (array) $wpdb->get_results($sql);
+            $list = ( array ) $wpdb->get_results( $sql );
 
-            if (!empty($list)) {
-                foreach ($list as $key => $val) {
-                    $val->uri = get_permalink($val->ID);
+            if ( !empty( $list ) ) {
+                foreach ( $list as $key => $val ) {
+                    $val->uri = get_permalink( $val->ID );
                 }
             }
-
             return $list;
         }
     }
 
     // Adding the functions to the WP widget
-    add_action('widgets_init', 'recently_updated_pages');
+    add_action( 'widgets_init', 'recently_updated_pages_iillc' );
 
     function rupDisplayPageUpdateDate() {
         global $post;
-        $dateFormat = (get_option('rup_date_format')) ? get_option('rup_date_format') : "jS F'y";
-        return date($dateFormat, strtotime($post->post_modified));
+        $dateFormat = ( get_option( 'rup_date_format' ) ) ? get_option( 'rup_date_format' ) : "jS F'y";
+        return date( $dateFormat, strtotime( $post->post_modified ) );
     }
-    add_shortcode('rup_display_update_date', 'rupDisplayPageUpdateDate');
+    add_shortcode( 'rup_display_update_date', 'rupDisplayPageUpdateDate' );
 ?>
