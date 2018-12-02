@@ -1,7 +1,9 @@
 # recently-updated-pages-custom
-This WordPress plugin adds a widget with the ability to insert a list of recently updated posts or pages. It includes a shortcode [rup_display_update_date] to add an updated data in a post or you can use it in a template. 
+This WordPress plugin adds a widget with the ability to insert a list of recently updated posts or pages. It includes a shortcode [rup_display_update_date] to add an updated date in a post or you can use it in a template. 
 
-This is an updated version of the original plugin: https://wordpress.org/plugins/recently-updated-pages/
+See this in action on most of the pages of https://fyxtrpg.com/ . Look to the footer near the search widget. It will display the most recently updated pages on the website. (Post or Pages that have been edited and updated.)
+
+This is an updated version of the original unmaintained plugin: https://wordpress.org/plugins/recently-updated-pages/
 
 === Recently Updated Pages ===
 
